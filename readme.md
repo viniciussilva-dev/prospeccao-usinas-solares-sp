@@ -1,123 +1,170 @@
-# 🌞 Prospecção de Usinas Solares — SP
+# 🌞 Solar Power Plant Prospecting Tool — São Paulo, Brazil
 
-Ferramenta de prospecção de clientes que cruza dados abertos da **ANEEL** com a **API do Google Maps** para identificar empresas donas de usinas fotovoltaicas grandes em São Paulo.
+A data pipeline that crosses **open government data from ANEEL** (Brazil's National Electric Energy Agency) with the **Google Maps Places API** to identify businesses that own large photovoltaic solar installations in São Paulo state — building a ready-to-use sales prospecting list.
 
-## Objetivo
+---
 
-Encontrar estabelecimentos comerciais com usinas solares instaladas acima de 300kW para oferecer serviços de manutenção. O resultado é uma lista com nome, telefone e endereço de cada estabelecimento.
+## The Problem It Solves
 
-## Como funciona
+Solar maintenance companies need to find businesses that own large solar installations — but there's no public directory that connects a power plant to its owner's phone number or address.
+
+This tool bridges that gap: it pulls raw technical data from the government, filters plants by size and region, then uses Google Maps to identify each business and extract contact information for a sales team.
+
+---
+
+## How It Works
 
 ```
-ANEEL (dados abertos)
+ANEEL Open Data API
         ↓
-Filtra: UFV + SP + ≥300kW
+Filter: UFV (photovoltaic) + São Paulo + ≥ 300kW
         ↓
-687.837 registros → 779 usinas
+687,837 total records → 779 qualifying plants
         ↓
 Google Maps Places API
-(busca por coordenadas)
+(reverse geocoding by coordinates)
         ↓
-Lista final para vendedores
+Final CSV: business name, phone, address, installed power (kW)
 ```
 
-## Estrutura do projeto
+---
+
+## Key Features
+
+- **Smart caching** — Google Maps API charges per request. The tool saves every result to a local JSON cache, so interruptions never cost money and re-runs are free.
+- **Batch processing** — queries are sent in batches of 20 with a configurable delay, staying well within API rate limits.
+- **Resume on interruption** — if the script stops mid-run, it picks up exactly where it left off using the cache.
+- **Clean output** — generates a CSV formatted for direct use by a sales or business development team.
+
+---
+
+## Project Structure
 
 ```
 projeto-aneel/
 │
-├── 1_filtrar_aneel.py      # Baixa e filtra dados da ANEEL via API
-├── 2_consultar_maps.py     # Consulta Google Maps com cache inteligente
+├── 1_filtrar_aneel.py      # Downloads and filters ANEEL data via their open API
+├── 2_consultar_maps.py     # Queries Google Maps with intelligent caching
 │
-├── dados/                  # Gerado automaticamente
-│   └── filtrado_sp.csv     # 779 usinas filtradas
+├── dados/                  # Auto-generated
+│   └── filtrado_sp.csv     # 779 filtered solar plants
 │
-├── cache/                  # Gerado automaticamente
-│   └── cache_maps.json     # Cache das consultas (não repete chamadas pagas)
+├── cache/                  # Auto-generated
+│   └── cache_maps.json     # API response cache (avoids duplicate paid calls)
 │
-├── resultados/             # Gerado automaticamente
-│   └── lista_vendas.csv    # Lista final para vendedores
+├── resultados/             # Auto-generated
+│   └── lista_vendas.csv    # Final output list for the sales team
 │
-├── .env.example            # Modelo de configuração
-├── .env                    # Suas credenciais (não sobe no GitHub)
-├── requirements.txt        # Dependências
+├── .env.example            # Configuration template
+├── .env                    # Your credentials (not committed to Git)
+├── requirements.txt        # Python dependencies
 └── README.md
 ```
 
-## Pré-requisitos
+---
+
+## Requirements
 
 - Python 3.11+
-- Chave da API do Google Maps com **Places API** ativada
+- Google Maps API key with **Places API** enabled
 
-## Instalação
+---
+
+## Setup
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/projeto-aneel.git
-cd projeto-aneel
+# 1. Clone the repository
+git clone https://github.com/viniciussilva-dev/prospeccao-usinas-solares-sp.git
+cd prospeccao-usinas-solares-sp
 
-# 2. Instale as dependências
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Configure as credenciais
+# 3. Set up credentials
 cp .env.example .env
-# Edite o .env e coloque sua chave do Google Maps
+# Edit .env and add your Google Maps API key
 ```
 
-## Como usar
+---
 
-### Passo 1 — Filtrar dados da ANEEL
+## Usage
+
+### Step 1 — Filter ANEEL data
+
 ```bash
 python 1_filtrar_aneel.py
 ```
-Baixa os dados via API da ANEEL e filtra as usinas UFV ≥300kW em SP.
-Resultado salvo em `dados/filtrado_sp.csv`.
 
-### Passo 2 — Consultar Google Maps
+Fetches data from ANEEL's public API and filters for photovoltaic plants (UFV) ≥ 300kW in São Paulo state.
+Output saved to `dados/filtrado_sp.csv`.
+
+### Step 2 — Query Google Maps
+
 ```bash
 python 2_consultar_maps.py
 ```
-Consulta o Google Maps para cada usina em lotes de 20.
-Salva progresso no cache a cada lote — se interrompido, continua de onde parou.
-Resultado salvo em `resultados/lista_vendas.csv`.
 
-## Sistema de cache
+Sends each plant's coordinates to the Google Maps Places API in batches of 20.
+Progress is saved to the cache after each batch — safe to interrupt and resume.
+Output saved to `resultados/lista_vendas.csv`.
 
-O script 2 usa um cache em JSON para evitar consultas duplicadas na API do Google Maps, que é paga por uso:
+---
 
-- Na primeira execução: consulta todas as usinas
-- Nas execuções seguintes: usa o cache, sem custo adicional
-- Se interrompido no meio: continua de onde parou
+## Caching System
 
-## Resultados
+The script uses a local JSON cache to avoid duplicate API calls:
 
-| Dado | Valor |
+| Scenario | Behavior |
 |---|---|
-| Usinas UFV em SP | 687.837 |
-| Após filtro ≥300kW | 779 |
-| Potência média | 1.191 kW |
-| Potência máxima | 5.000 kW |
+| First run | Queries all 779 plants |
+| Re-run after completion | Reads entirely from cache — zero API cost |
+| Interrupted mid-run | Resumes from last cached result |
 
-## Custo estimado da API
+---
 
-| Chamada | Qtd | Custo |
+## Results
+
+| Metric | Value |
+|---|---|
+| Total UFV plants in São Paulo | 687,837 |
+| After ≥ 300kW filter | 779 |
+| Average installed power | 1,191 kW |
+| Maximum installed power | 5,000 kW |
+
+---
+
+## Estimated API Cost
+
+| Request type | Count | Estimated cost |
 |---|---|---|
-| Nearby Search | 779 | ~US$ 24,93 |
-| Place Details | 779 | ~US$ 13,24 |
-| **Total** | **1.558** | **~US$ 38,00** |
+| Nearby Search | 779 | ~US$ 24.93 |
+| Place Details | 779 | ~US$ 13.24 |
+| **Total** | **1,558** | **~US$ 38.00** |
 
-O Google oferece **US$ 200,00 de crédito grátis por mês** — o projeto roda dentro do gratuito.
+> Google provides **US$ 200.00 in free monthly credits** — this project runs entirely within the free tier.
 
-## Tecnologias
+---
 
-- **Python 3.11**
-- **Pandas** — manipulação de dados
-- **Requests** — chamadas HTTP
-- **Google Maps Places API** — geocodificação reversa
-- **ANEEL Dados Abertos** — fonte dos dados de usinas
+## Tech Stack
 
-## Fonte dos dados
+| Tool | Purpose |
+|---|---|
+| Python 3.11 | Core language |
+| Pandas | Data filtering and manipulation |
+| Requests | HTTP calls to ANEEL and Google APIs |
+| Google Maps Places API | Reverse geocoding by coordinates |
+| ANEEL Open Data API | Source of solar plant records |
 
-[ANEEL — Relação de Empreendimentos de Geração Distribuída](https://dadosabertos.aneel.gov.br/dataset/relacao-de-empreendimentos-de-geracao-distribuida)
+---
 
-Atualização mensal. Licença: dados públicos do governo brasileiro.
+## Data Source
+
+[ANEEL — Distributed Generation Register](https://dadosabertos.aneel.gov.br/dataset/relacao-de-empreendimentos-de-geracao-distribuida)
+
+Updated monthly. License: Brazilian government open data (public domain).
+
+---
+
+## Author
+
+**Vinicius Silva** — [github.com/viniciussilva-dev](https://github.com/viniciussilva-dev)
