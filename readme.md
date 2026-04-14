@@ -267,3 +267,4 @@ Dados públicos do governo brasileiro. Atualização mensal.
 ## 👤 Autor
 
 Desenvolvido por Vinicius Silva.
+Desenvolvido para uso interno da Empresa.
