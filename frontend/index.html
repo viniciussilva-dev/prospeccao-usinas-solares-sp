@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<!-- DOCTYPE diz ao navegador que este é um documento HTML5 moderno -->
+
+<html lang="pt-BR">
+<!-- lang="pt-BR" informa ao navegador que o idioma é português brasileiro -->
+<!-- isso ajuda leitores de tela e ferramentas de tradução -->
+
+<head>
+    <!-- HEAD contém configurações da página que NÃO aparecem visualmente -->
+
+    <!-- Define o conjunto de caracteres como UTF-8 -->
+    <!-- sem isso, acentos e caracteres especiais aparecem errados (ç, ã, é) -->
+    <meta charset="UTF-8">
+
+    <!-- Faz a página se adaptar ao tamanho da tela (celular, tablet, desktop) -->
+    <!-- width=device-width = usa a largura real do dispositivo -->
+    <!-- initial-scale=1.0 = começa com zoom 100%, sem zoom automático -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título que aparece na aba do navegador -->
+    <title>Prospecção de Usinas Solares — SP</title>
+
+    <!-- ================================================================ -->
+    <!-- BIBLIOTECAS EXTERNAS — carregadas do CDN (internet) -->
+    <!-- ================================================================ -->
+
+    <!-- Font Awesome — biblioteca de ícones (sol, mapa, telefone, etc.) -->
+    <!-- NÃO tem relação com o mapa — é só para os ícones da interface -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts — fonte Inter, mais legível que as fontes padrão do sistema -->
+    <!-- NÃO tem relação com o mapa — é só a fonte do texto da página -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- PapaParse — biblioteca para ler arquivos CSV direto no navegador -->
+    <!-- Usamos para carregar os arquivos lista_vendas.csv e lista_vendas_solar.csv -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <!-- Nosso arquivo CSS — define todo o visual da página -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- ================================================================ -->
+    <!-- GOOGLE MAPS API — carregada aqui no HEAD                        -->
+    <!-- callback=iniciarMapa = quando a API carregar, chama essa função -->
+    <!-- essa função será definida no arquivo js/mapa.js                 -->
+    <!-- SUA_CHAVE_AQUI = substituir pela chave real do Google Maps      -->
+    <!-- ================================================================ -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=SUA_CHAVE_AQUI&callback=iniciarMapa" async defer></script>
+    <!-- async = carrega em paralelo sem travar a página -->
+    <!-- defer = só executa depois que o HTML foi completamente lido -->
+
+</head>
+
+<body>
+    <!-- BODY contém tudo que o usuário VÊ na página -->
+
+    <!-- ================================================================ -->
+    <!-- CABEÇALHO DA PÁGINA -->
+    <!-- ================================================================ -->
+    <header class="header">
+        <div class="header-content">
+
+            <!-- Ícone de sol + título principal -->
+            <div class="header-titulo">
+                <i class="fa-solid fa-sun icone-titulo"></i>
+                <h1>Prospecção de Usinas Solares</h1>
+            </div>
+
+            <!-- Subtítulo com informações do filtro aplicado -->
+            <p class="header-subtitulo">
+                Usinas fotovoltaicas (UFV) ≥ 300kW — Estado de São Paulo
+            </p>
+        </div>
+    </header>
+
+    <!-- ================================================================ -->
+    <!-- SEÇÃO DOS CARDS DE RESUMO (números principais no topo) -->
+    <!-- ================================================================ -->
+    <section class="secao-cards">
+
+        <!-- Card 1: Total de usinas encontradas -->
+        <div class="card" id="card-total">
+            <i class="fa-solid fa-solar-panel icone-card"></i>
+            <div class="card-info">
+                <!-- id="num-total" permite que o JavaScript encontre e atualize este número -->
+                <span class="card-numero" id="num-total">--</span>
+                <span class="card-label">Total de usinas</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Potência média instalada -->
+        <div class="card" id="card-potencia">
+            <i class="fa-solid fa-bolt icone-card"></i>
+            <div class="card-info">
+                <span class="card-numero" id="num-potencia">--</span>
+                <span class="card-label">Potência média (kW)</span>
+            </div>
+        </div>
+
+        <!-- Card 3: Usinas com potencial de expansão identificado -->
+        <div class="card" id="card-expansao">
+            <i class="fa-solid fa-chart-line icone-card"></i>
+            <div class="card-info">
+                <span class="card-numero" id="num-expansao">--</span>
+                <span class="card-label">Com potencial de expansão</span>
+            </div>
+        </div>
+
+        <!-- Card 4: Maior potencial de expansão encontrado -->
+        <div class="card" id="card-maior">
+            <i class="fa-solid fa-trophy icone-card"></i>
+            <div class="card-info">
+                <span class="card-numero" id="num-maior">--</span>
+                <span class="card-label">Maior expansão (kW)</span>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SEÇÃO PRINCIPAL: MAPA + PAINEL LATERAL -->
+    <!-- ================================================================ -->
+    <section class="secao-mapa-painel">
+
+        <!-- MAPA DO GOOGLE MAPS -->
+        <div class="container-mapa">
+
+            <!-- Legenda flutuando sobre o mapa -->
+            <div class="legenda-mapa">
+                <span class="legenda-item">
+                    <span class="ponto ponto-verde"></span>
+                    Não contatado
+                </span>
+                <span class="legenda-item">
+                    <span class="ponto ponto-azul"></span>
+                    Contatado
+                </span>
+                <span class="legenda-item">
+                    <span class="ponto ponto-laranja"></span>
+                    Proposta enviada
+                </span>
+                <span class="legenda-item">
+                    <span class="ponto ponto-vermelho"></span>
+                    Descartado
+                </span>
+                <span class="legenda-item">
+                    <span class="ponto ponto-cinza"></span>
+                    Não encontrado
+                </span>
+            </div>
+
+            <!-- DIV onde o Google Maps vai DESENHAR o mapa -->
+            <!-- id="mapa" é obrigatório — o JavaScript usa esse id para iniciar o mapa -->
+            <div id="mapa"></div>
+
+        </div>
+
+        <!-- PAINEL LATERAL — informações da usina selecionada no mapa -->
+        <div class="painel-lateral" id="painel-lateral">
+
+            <!-- Estado inicial: nenhuma usina selecionada ainda -->
+            <div class="painel-vazio" id="painel-vazio">
+                <i class="fa-solid fa-map-pin icone-painel-vazio"></i>
+                <p>Clique em um marcador no mapa para ver os detalhes da usina</p>
+            </div>
+
+            <!-- Detalhes da usina — aparece quando o usuário clica no mapa -->
+            <!-- style="display:none" = escondido por padrão, JS vai mostrar quando necessário -->
+            <div class="painel-detalhes" id="painel-detalhes" style="display:none">
+
+                <!-- Nome do estabelecimento ou titular -->
+                <h3 id="detalhe-nome" class="detalhe-titulo"></h3>
+
+                <!-- Badge de status (contatado / proposta / descartado / novo) -->
+                <span id="detalhe-badge" class="badge"></span>
+
+                <!-- Seção: Dados da ANEEL -->
+                <div class="detalhe-secao">
+                    <h4 class="detalhe-secao-titulo">
+                        <i class="fa-solid fa-database"></i> Dados ANEEL
+                    </h4>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Titular</span>
+                        <span class="detalhe-valor" id="detalhe-titular"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Município</span>
+                        <span class="detalhe-valor" id="detalhe-municipio"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Potência instalada</span>
+                        <span class="detalhe-valor" id="detalhe-potencia"></span>
+                    </div>
+                </div>
+
+                <!-- Seção: Dados do Google Maps -->
+                <div class="detalhe-secao">
+                    <h4 class="detalhe-secao-titulo">
+                        <i class="fa-solid fa-map-location-dot"></i> Google Maps
+                    </h4>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Telefone</span>
+                        <span class="detalhe-valor" id="detalhe-telefone"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Endereço</span>
+                        <span class="detalhe-valor" id="detalhe-endereco"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Site</span>
+                        <span class="detalhe-valor" id="detalhe-site"></span>
+                    </div>
+                </div>
+
+                <!-- Seção: Dados da Solar API — só aparece se tiver dados -->
+                <div class="detalhe-secao" id="secao-solar" style="display:none">
+                    <h4 class="detalhe-secao-titulo">
+                        <i class="fa-solid fa-sun"></i> Solar API
+                    </h4>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Área do telhado</span>
+                        <span class="detalhe-valor" id="detalhe-area"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Máx. painéis</span>
+                        <span class="detalhe-valor" id="detalhe-paineis"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Horas de sol/ano</span>
+                        <span class="detalhe-valor" id="detalhe-horas-sol"></span>
+                    </div>
+                    <div class="detalhe-linha destaque">
+                        <span class="detalhe-chave">Potencial expansão</span>
+                        <span class="detalhe-valor" id="detalhe-expansao"></span>
+                    </div>
+                    <div class="detalhe-linha">
+                        <span class="detalhe-chave">Economia anual</span>
+                        <span class="detalhe-valor" id="detalhe-economia"></span>
+                    </div>
+                </div>
+
+                <!-- ================================================ -->
+                <!-- CONTROLE DE STATUS — o vendedor muda aqui        -->
+                <!-- ================================================ -->
+                <div class="botoes-status">
+                    <p class="botoes-status-titulo">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Atualizar status
+                    </p>
+
+                    <!-- Cada botão chama a função selecionarStatus() com o status -->
+                    <button class="btn-status novo" onclick="selecionarStatus('novo')">
+                        <span class="ponto ponto-verde"></span>
+                        Não contatado ainda
+                    </button>
+                    <button class="btn-status contatado" onclick="selecionarStatus('contatado')">
+                        <span class="ponto ponto-azul"></span>
+                        Já entrei em contato
+                    </button>
+                    <button class="btn-status proposta" onclick="selecionarStatus('proposta')">
+                        <span class="ponto ponto-laranja"></span>
+                        Proposta enviada
+                    </button>
+                    <button class="btn-status descartado" onclick="selecionarStatus('descartado')">
+                        <span class="ponto ponto-vermelho"></span>
+                        Descartado
+                    </button>
+
+                    <!-- Campo para o vendedor colocar o nome -->
+                    <div class="campo-vendedor">
+                        <label>Seu nome</label>
+                        <input
+                            type="text"
+                            id="input-vendedor"
+                            placeholder="Ex: João Silva"
+                        >
+                    </div>
+
+                    <!-- Campo de observação livre -->
+                    <div class="campo-observacao">
+                        <label class="filtro-label">Observação</label>
+                        <textarea
+                            id="input-observacao"
+                            placeholder="Anotações sobre o contato..."
+                        ></textarea>
+                    </div>
+
+                    <!-- Botão que salva o status no backend -->
+                    <button class="btn-salvar" onclick="salvarStatus()">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Salvar status
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SEÇÃO DA TABELA FILTRÁVEL -->
+    <!-- ================================================================ -->
+    <section class="secao-tabela">
+
+        <div class="tabela-header">
+            <h2 class="tabela-titulo">
+                <i class="fa-solid fa-table"></i>
+                Lista completa de usinas
+            </h2>
+            <!-- Contador atualizado pelo JavaScript conforme filtros são aplicados -->
+            <span class="tabela-contador" id="tabela-contador">779 usinas</span>
+        </div>
+
+        <!-- BARRA DE FILTROS -->
+        <div class="filtros">
+
+            <div class="filtro-grupo">
+                <label class="filtro-label">Buscar</label>
+                <!-- oninput = chama a função JS toda vez que digitar -->
+                <input
+                    type="text"
+                    id="filtro-busca"
+                    class="filtro-input"
+                    placeholder="Município ou empresa..."
+                    oninput="filtrarTabela()"
+                >
+            </div>
+
+            <div class="filtro-grupo">
+                <label class="filtro-label">Potência mínima (kW)</label>
+                <input
+                    type="number"
+                    id="filtro-potencia"
+                    class="filtro-input"
+                    placeholder="Ex: 500"
+                    oninput="filtrarTabela()"
+                >
+            </div>
+
+            <div class="filtro-grupo">
+                <label class="filtro-label">Filtrar por</label>
+                <!-- onchange = chama a função JS quando selecionar uma opção -->
+                <select id="filtro-tipo" class="filtro-select" onchange="filtrarTabela()">
+                    <option value="todos">Todas as usinas</option>
+                    <option value="com_solar">Com dados solares</option>
+                    <option value="com_expansao">Com potencial de expansão</option>
+                    <option value="com_telefone">Com telefone</option>
+                    <option value="novo">Não contatadas</option>
+                    <option value="contatado">Contatadas</option>
+                    <option value="proposta">Proposta enviada</option>
+                    <option value="descartado">Descartadas</option>
+                </select>
+            </div>
+
+            <button class="botao-limpar" onclick="limparFiltros()">
+                <i class="fa-solid fa-xmark"></i>
+                Limpar filtros
+            </button>
+
+        </div>
+
+        <!-- TABELA DE DADOS -->
+        <div class="tabela-container">
+            <table class="tabela" id="tabela-usinas">
+
+                <thead>
+                    <tr>
+                        <!-- onclick="ordenarTabela(N)" = ordena pela coluna N ao clicar -->
+                        <th onclick="ordenarTabela(0)" class="th-ordenavel">
+                            Empresa / Titular
+                            <i class="fa-solid fa-sort icone-sort"></i>
+                        </th>
+                        <th onclick="ordenarTabela(1)" class="th-ordenavel">
+                            Município
+                            <i class="fa-solid fa-sort icone-sort"></i>
+                        </th>
+                        <th onclick="ordenarTabela(2)" class="th-ordenavel th-numero">
+                            Potência (kW)
+                            <i class="fa-solid fa-sort icone-sort"></i>
+                        </th>
+                        <th>Nome no Maps</th>
+                        <th>Telefone</th>
+                        <th onclick="ordenarTabela(5)" class="th-ordenavel th-numero">
+                            Expansão (kW)
+                            <i class="fa-solid fa-sort icone-sort"></i>
+                        </th>
+                        <th onclick="ordenarTabela(6)" class="th-ordenavel th-numero">
+                            Telhado (m²)
+                            <i class="fa-solid fa-sort icone-sort"></i>
+                        </th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <!-- CORPO DA TABELA — preenchido pelo JavaScript -->
+                <tbody id="tabela-corpo">
+                    <!-- As linhas serão inseridas pelo JavaScript -->
+                </tbody>
+
+            </table>
+        </div>
+
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- RODAPÉ DA PÁGINA -->
+    <!-- ================================================================ -->
+    <footer class="footer">
+        <p>
+            Dados:
+            <a href="https://dadosabertos.aneel.gov.br" target="_blank" rel="noopener">
+                ANEEL Dados Abertos
+            </a>
+            · Google Maps API · Google Solar API
+        </p>
+        <p>Atualização mensal · CS Consultoria</p>
+    </footer>
+
+    <!-- ================================================================ -->
+    <!-- SCRIPTS — carregados no FIM do body (boa prática)               -->
+    <!-- Colocar scripts no fim garante que o HTML já foi carregado      -->
+    <!-- antes do JavaScript tentar manipulá-lo                          -->
+    <!-- ================================================================ -->
+
+    <!-- 1. dados.js = carrega e processa os CSVs (precisa ser primeiro) -->
+    <script src="js/dados.js"></script>
+
+    <!-- 2. mapa.js = cria e controla o mapa Google Maps -->
+    <script src="js/mapa.js"></script>
+
+    <!-- 3. tabela.js = cria e controla a tabela filtrável -->
+    <script src="js/tabela.js"></script>
+
+</body>
+</html>

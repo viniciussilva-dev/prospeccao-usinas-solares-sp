@@ -6,6 +6,9 @@ dados/
 cache/
 resultados/
 
+# === DADOS DO FRONTEND ===
+frontend/dados/
+
 # === PYTHON ===
 __pycache__/
 *.py[cod]

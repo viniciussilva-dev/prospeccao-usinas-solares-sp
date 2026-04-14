@@ -1,0 +1,814 @@
+/* ================================================================
+   STYLE.CSS — Visual completo da página de prospecção solar
+   Cada bloco tem comentário explicando o que faz
+   ================================================================ */
+
+
+/* ================================================================
+   VARIÁVEIS GLOBAIS (--nome-da-variavel)
+   Definimos as cores e medidas aqui uma vez só
+   Se quiser mudar uma cor, muda só aqui e aplica em toda a página
+   ================================================================ */
+:root {
+    /* Cores principais da marca */
+    --cor-primaria:  #ef4444;        /* Amarelo solar — cor principal */
+    --cor-primaria-escura: #dc2626; /* Amarelo mais escuro para hover */
+    --cor-secundaria: #1e293b;      /* Azul escuro — fundo do header */
+    --cor-fundo: #f1f5f9;           /* Cinza muito claro — fundo da página */
+    --cor-fundo-card: #ffffff;      /* Branco — fundo dos cards */
+    --cor-texto: #1e293b;           /* Azul escuro — texto principal */
+    --cor-texto-suave: #64748b;     /* Cinza — texto secundário */
+    --cor-borda: #e2e8f0;           /* Cinza claro — bordas */
+    /* === EXCEÇÃO: ícone do sol fica amarelo (tema Canal Solar) === */
+    .icone-titulo {
+    color: #f59e0b !important;
+}
+
+    /* Cores dos status dos pins no mapa */
+    --cor-novo: #22c55e;            /* Verde — usina nova, não contatada */
+    --cor-contatado: #3b82f6;       /* Azul — já entrou em contato */
+    --cor-proposta: #f97316;        /* Laranja — proposta enviada */
+    --cor-descartado: #ef4444;      /* Vermelho — sem interesse */
+
+    /* Medidas de espaçamento */
+    --espaco-pequeno: 8px;
+    --espaco-medio: 16px;
+    --espaco-grande: 24px;
+    --espaco-extra: 32px;
+
+    /* Bordas arredondadas */
+    --raio-pequeno: 6px;
+    --raio-medio: 10px;
+    --raio-grande: 16px;
+
+    /* Sombras */
+    --sombra-suave: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --sombra-media: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+    --sombra-forte: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+}
+
+
+/* ================================================================
+   RESET — Remove estilos padrão do navegador
+   Cada navegador tem estilos diferentes por padrão
+   O reset garante que começa do zero igual em todos
+   ================================================================ */
+* {
+    margin: 0;          /* Remove margens padrão de todos os elementos */
+    padding: 0;         /* Remove espaçamentos padrão de todos os elementos */
+    box-sizing: border-box; /* Faz o padding não aumentar o tamanho do elemento */
+}
+
+
+/* ================================================================
+   BODY — Configurações base da página inteira
+   ================================================================ */
+body {
+    font-family: 'Inter', sans-serif; /* Fonte importada do Google Fonts */
+    background-color: var(--cor-fundo); /* Fundo cinza claro da página */
+    color: var(--cor-texto);            /* Cor padrão do texto */
+    font-size: 14px;                    /* Tamanho base da fonte */
+    line-height: 1.5;                   /* Espaçamento entre linhas */
+}
+
+
+/* ================================================================
+   HEADER — Cabeçalho da página
+   ================================================================ */
+.header {
+    background-color: var(--cor-secundaria); /* Fundo azul escuro */
+    color: white;                            /* Texto branco */
+    padding: var(--espaco-grande) var(--espaco-extra); /* Espaço interno */
+    border-bottom: 3px solid var(--cor-primaria);      /* Linha amarela embaixo */
+}
+
+.header-content {
+    max-width: 1400px;  /* Limita a largura máxima para não ficar muito largo */
+    margin: 0 auto;     /* Centraliza horizontalmente */
+}
+
+.header-titulo {
+    display: flex;          /* Coloca ícone e título lado a lado */
+    align-items: center;    /* Alinha verticalmente no centro */
+    gap: var(--espaco-medio); /* Espaço entre ícone e texto */
+    margin-bottom: var(--espaco-pequeno);
+}
+
+.header-titulo h1 {
+    font-size: 22px;    /* Tamanho do título principal */
+    font-weight: 700;   /* Negrito forte */
+    letter-spacing: -0.3px; /* Aproxima levemente as letras */
+}
+
+.icone-titulo {
+    font-size: 24px;                /* Tamanho do ícone de sol */
+    color: var(--cor-primaria);     /* Cor amarela solar */
+}
+
+.header-subtitulo {
+    font-size: 13px;                    /* Menor que o título */
+    color: rgba(255,255,255,0.65);      /* Branco transparente (suave) */
+    margin-left: 44px;                  /* Alinha com o texto do título */
+}
+
+
+/* ================================================================
+   SEÇÃO DOS CARDS DE RESUMO
+   Os 4 números principais no topo da página
+   ================================================================ */
+.secao-cards {
+    display: flex;              /* Coloca os cards lado a lado */
+    gap: var(--espaco-medio);   /* Espaço entre os cards */
+    padding: var(--espaco-grande) var(--espaco-extra); /* Espaço externo */
+    max-width: 1400px;
+    margin: 0 auto;
+    flex-wrap: wrap;            /* Se a tela for pequena, quebra para próxima linha */
+}
+
+.card {
+    background: var(--cor-fundo-card); /* Fundo branco */
+    border-radius: var(--raio-grande); /* Cantos arredondados */
+    padding: var(--espaco-grande);     /* Espaço interno */
+    box-shadow: var(--sombra-suave);   /* Sombra suave */
+    display: flex;                     /* Ícone e texto lado a lado */
+    align-items: center;
+    gap: var(--espaco-medio);
+    flex: 1;                           /* Cada card ocupa espaço igual */
+    min-width: 200px;                  /* Tamanho mínimo antes de quebrar linha */
+    border: 1px solid var(--cor-borda);
+    transition: transform 0.2s, box-shadow 0.2s; /* Animação suave no hover */
+}
+
+.card:hover {
+    transform: translateY(-2px);       /* Sobe 2px quando passa o mouse */
+    box-shadow: var(--sombra-media);   /* Sombra mais forte no hover */
+}
+
+.icone-card {
+    font-size: 28px;                   /* Tamanho do ícone */
+    color: var(--cor-primaria);        /* Cor amarela */
+    width: 48px;                       /* Largura fixa para alinhar */
+    text-align: center;
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column; /* Empilha número e label verticalmente */
+}
+
+.card-numero {
+    font-size: 28px;        /* Número grande e destaque */
+    font-weight: 700;       /* Negrito */
+    color: var(--cor-texto);
+    line-height: 1;
+}
+
+.card-label {
+    font-size: 12px;                    /* Texto pequeno abaixo do número */
+    color: var(--cor-texto-suave);      /* Cor cinza suave */
+    margin-top: 4px;
+}
+
+
+/* ================================================================
+   SEÇÃO MAPA + PAINEL LATERAL
+   Layout de duas colunas: mapa grande à esq, painel à dir
+   ================================================================ */
+.secao-mapa-painel {
+    display: flex;              /* Coloca mapa e painel lado a lado */
+    gap: var(--espaco-medio);
+    padding: 0 var(--espaco-extra) var(--espaco-grande);
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 550px;              /* Altura fixa da área do mapa */
+}
+
+.container-mapa {
+    flex: 1;                    /* Ocupa todo o espaço disponível */
+    position: relative;         /* Necessário para posicionar a legenda */
+    border-radius: var(--raio-grande);
+    overflow: hidden;           /* Corta o mapa nos cantos arredondados */
+    box-shadow: var(--sombra-media);
+    border: 1px solid var(--cor-borda);
+}
+
+/* O mapa em si — precisa de altura definida para aparecer */
+#mapa {
+    width: 100%;        /* Ocupa toda a largura do container */
+    height: 100%;       /* Ocupa toda a altura do container */
+}
+
+/* Legenda flutuando sobre o mapa */
+.legenda-mapa {
+    position: absolute;     /* Posiciona sobre o mapa */
+    bottom: 16px;           /* 16px acima da borda inferior */
+    left: 16px;             /* 16px da borda esquerda */
+    z-index: 1000;          /* Fica na frente do mapa (Leaflet usa z-index baixo) */
+    background: white;
+    border-radius: var(--raio-medio);
+    padding: 10px 14px;
+    box-shadow: var(--sombra-forte);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid var(--cor-borda);
+}
+
+.legenda-item {
+    display: flex;          /* Ponto colorido e texto lado a lado */
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--cor-texto);
+}
+
+/* Ponto colorido da legenda */
+.ponto {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%; /* Círculo perfeito */
+    flex-shrink: 0;     /* Não encolhe */
+}
+
+/* Cores dos pontos da legenda — uma para cada status */
+.ponto-verde    { background-color: var(--cor-novo); }
+.ponto-azul     { background-color: var(--cor-contatado); }
+.ponto-laranja  { background-color: var(--cor-proposta); }
+.ponto-vermelho { background-color: var(--cor-descartado); }
+.ponto-cinza    { background-color: #94a3b8; }
+
+
+/* ================================================================
+   PAINEL LATERAL — detalhes da usina selecionada
+   ================================================================ */
+.painel-lateral {
+    width: 320px;               /* Largura fixa do painel */
+    flex-shrink: 0;             /* Não encolhe quando o mapa cresce */
+    background: var(--cor-fundo-card);
+    border-radius: var(--raio-grande);
+    box-shadow: var(--sombra-media);
+    border: 1px solid var(--cor-borda);
+    overflow-y: auto;           /* Scroll vertical se o conteúdo for grande */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estado vazio — quando nenhuma usina foi selecionada */
+.painel-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: var(--espaco-grande);
+    text-align: center;
+    color: var(--cor-texto-suave);
+    gap: var(--espaco-medio);
+}
+
+.icone-painel-vazio {
+    font-size: 36px;
+    color: var(--cor-borda);
+}
+
+.painel-vazio p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Detalhes da usina selecionada */
+.painel-detalhes {
+    padding: var(--espaco-medio);
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-medio);
+}
+
+.detalhe-titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cor-texto);
+    line-height: 1.3;
+}
+
+/* Badge de status (verde, azul, etc.) */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;    /* Pílula arredondada */
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cores dos badges por status */
+.badge-novo        { background: #dcfce7; color: #16a34a; }
+.badge-contatado   { background: #dbeafe; color: #1d4ed8; }
+.badge-proposta    { background: #ffedd5; color: #c2410c; }
+.badge-descartado  { background: #fee2e2; color: #dc2626; }
+
+/* Seção dentro do painel (ANEEL, Maps, Solar) */
+.detalhe-secao {
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-medio);
+    overflow: hidden;
+}
+
+.detalhe-secao-titulo {
+    background: var(--cor-fundo);   /* Fundo cinza no título da seção */
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+/* Linha de chave: valor dentro da seção */
+.detalhe-linha {
+    display: flex;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--cor-borda);
+    gap: 8px;
+}
+
+.detalhe-linha:last-child {
+    border-bottom: none; /* Remove borda da última linha */
+}
+
+.detalhe-chave {
+    font-size: 12px;
+    color: var(--cor-texto-suave);
+    min-width: 100px;   /* Largura mínima para alinhar os valores */
+    flex-shrink: 0;
+}
+
+.detalhe-valor {
+    font-size: 12px;
+    color: var(--cor-texto);
+    font-weight: 500;
+    word-break: break-word; /* Quebra palavras longas */
+}
+
+/* Linha de destaque — potencial de expansão */
+.detalhe-linha.destaque {
+    background: #fefce8;    /* Fundo amarelo bem suave */
+}
+
+.detalhe-linha.destaque .detalhe-valor {
+    color: #d97706;         /* Valor em laranja */
+    font-weight: 700;
+}
+
+/* ================================================================
+   BOTÕES DE STATUS — dentro do painel lateral
+   O vendedor clica para mudar o status da usina
+   ================================================================ */
+.botoes-status {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: var(--espaco-medio);
+    border-top: 1px solid var(--cor-borda);
+}
+
+.botoes-status-titulo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.btn-status {
+    padding: 8px 12px;
+    border-radius: var(--raio-pequeno);
+    border: 1px solid transparent;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;            /* Muda cursor para mão ao passar o mouse */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;      /* Animação suave */
+    text-align: left;
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+    border-color: var(--cor-borda);
+}
+
+.btn-status:hover {
+    filter: brightness(0.95);   /* Escurece levemente no hover */
+    transform: translateX(2px); /* Move levemente para direita */
+}
+
+/* Cor específica de cada botão de status */
+.btn-status.novo       { border-left: 3px solid var(--cor-novo); }
+.btn-status.contatado  { border-left: 3px solid var(--cor-contatado); }
+.btn-status.proposta   { border-left: 3px solid var(--cor-proposta); }
+.btn-status.descartado { border-left: 3px solid var(--cor-descartado); }
+
+/* Botão ativo — status atual selecionado */
+.btn-status.ativo {
+    font-weight: 700;
+    filter: brightness(0.92);
+}
+
+/* Campo de observação do vendedor */
+.campo-observacao {
+    margin-top: 4px;
+}
+
+.campo-observacao textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-pequeno);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--cor-texto);
+    resize: vertical;           /* Permite redimensionar só verticalmente */
+    min-height: 60px;
+    background: var(--cor-fundo);
+    outline: none;
+}
+
+.campo-observacao textarea:focus {
+    border-color: var(--cor-primaria); /* Borda amarela quando focado */
+    background: white;
+}
+
+/* Campo nome do vendedor */
+.campo-vendedor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.campo-vendedor label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.campo-vendedor input {
+    padding: 7px 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-pequeno);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    outline: none;
+}
+
+.campo-vendedor input:focus {
+    border-color: var(--cor-primaria);
+    background: white;
+}
+
+/* Botão salvar status */
+.btn-salvar {
+    width: 100%;
+    padding: 9px;
+    background: var(--cor-primaria);    /* Fundo amarelo */
+    color: white;
+    border: none;
+    border-radius: var(--raio-pequeno);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+}
+
+.btn-salvar:hover {
+    background: var(--cor-primaria-escura); /* Amarelo escuro no hover */
+}
+
+
+/* ================================================================
+   SEÇÃO DA TABELA
+   ================================================================ */
+.secao-tabela {
+    padding: 0 var(--espaco-extra) var(--espaco-extra);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.tabela-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Título à esq, contador à dir */
+    margin-bottom: var(--espaco-medio);
+}
+
+.tabela-titulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cor-texto);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tabela-titulo i {
+    color: var(--cor-primaria); /* Ícone amarelo */
+}
+
+.tabela-contador {
+    font-size: 12px;
+    color: var(--cor-texto-suave);
+    background: var(--cor-fundo-card);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--cor-borda);
+}
+
+
+/* ================================================================
+   FILTROS DA TABELA
+   ================================================================ */
+.filtros {
+    display: flex;
+    gap: var(--espaco-medio);
+    margin-bottom: var(--espaco-medio);
+    flex-wrap: wrap;        /* Quebra linha em telas menores */
+    align-items: flex-end;
+    background: var(--cor-fundo-card);
+    padding: var(--espaco-medio);
+    border-radius: var(--raio-grande);
+    border: 1px solid var(--cor-borda);
+    box-shadow: var(--sombra-suave);
+}
+
+.filtro-grupo {
+    display: flex;
+    flex-direction: column; /* Label acima do input */
+    gap: 4px;
+    flex: 1;
+    min-width: 160px;
+}
+
+.filtro-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filtro-input,
+.filtro-select {
+    padding: 8px 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-pequeno);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.filtro-input:focus,
+.filtro-select:focus {
+    border-color: var(--cor-primaria); /* Borda amarela quando focado */
+    background: white;
+}
+
+.botao-limpar {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-pequeno);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cor-texto-suave);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;    /* Não quebra o texto do botão */
+    align-self: flex-end;   /* Alinha com os inputs */
+}
+
+.botao-limpar:hover {
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+    border-color: #94a3b8;
+}
+
+
+/* ================================================================
+   TABELA DE DADOS
+   ================================================================ */
+.tabela-container {
+    background: var(--cor-fundo-card);
+    border-radius: var(--raio-grande);
+    box-shadow: var(--sombra-media);
+    border: 1px solid var(--cor-borda);
+    overflow: hidden;
+    overflow-x: auto;   /* Scroll horizontal em telas pequenas */
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse; /* Remove espaço duplo entre bordas */
+    font-size: 13px;
+}
+
+/* Cabeçalho da tabela */
+.tabela thead tr {
+    background: var(--cor-fundo); /* Fundo cinza no cabeçalho */
+    border-bottom: 2px solid var(--cor-borda);
+}
+
+.tabela th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cor-texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;    /* Não quebra o texto do cabeçalho */
+}
+
+/* Colunas de número ficam alinhadas à direita */
+.th-numero {
+    text-align: right;
+}
+
+/* Cabeçalho ordenável — muda cursor para indicar clicável */
+.th-ordenavel {
+    cursor: pointer;
+    user-select: none;  /* Não seleciona o texto ao clicar */
+}
+
+.th-ordenavel:hover {
+    color: var(--cor-texto);
+    background: var(--cor-borda);
+}
+
+.icone-sort {
+    margin-left: 4px;
+    opacity: 0.4;       /* Ícone de ordenação semi-transparente */
+}
+
+/* Linhas do corpo da tabela */
+.tabela tbody tr {
+    border-bottom: 1px solid var(--cor-borda);
+    transition: background 0.1s;
+}
+
+.tabela tbody tr:last-child {
+    border-bottom: none; /* Sem borda na última linha */
+}
+
+.tabela tbody tr:hover {
+    background: #f8fafc; /* Fundo levemente cinza no hover */
+    cursor: pointer;
+}
+
+/* Linha ativa — usina selecionada no mapa */
+.tabela tbody tr.linha-ativa {
+    background: #fef9c3; /* Fundo amarelo claro */
+}
+
+.tabela td {
+    padding: 10px 16px;
+    color: var(--cor-texto);
+    vertical-align: middle;
+}
+
+/* Células numéricas alinhadas à direita */
+.td-numero {
+    text-align: right;
+    font-variant-numeric: tabular-nums; /* Números alinhados em colunas */
+}
+
+/* Nome do titular — texto longo truncado com reticências */
+.td-titular {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Reticências (...) quando texto muito longo */
+    white-space: nowrap;
+}
+
+/* Badge de status dentro da tabela */
+.badge-tabela {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* Valor de expansão em destaque */
+.td-expansao {
+    font-weight: 700;
+    color: #d97706;     /* Laranja/amarelo para destaque */
+}
+
+
+/* ================================================================
+   RODAPÉ
+   ================================================================ */
+.footer {
+    text-align: center;
+    padding: var(--espaco-grande);
+    color: var(--cor-texto-suave);
+    font-size: 12px;
+    border-top: 1px solid var(--cor-borda);
+    margin-top: var(--espaco-grande);
+    line-height: 1.8;
+}
+
+.footer a {
+    color: var(--cor-primaria);     /* Links em amarelo */
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+
+/* ================================================================
+   SCROLLBAR PERSONALIZADA — deixa a barra de scroll mais discreta
+   Funciona no Chrome, Edge e Safari
+   ================================================================ */
+::-webkit-scrollbar {
+    width: 6px;     /* Largura da barra vertical */
+    height: 6px;    /* Altura da barra horizontal */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--cor-fundo); /* Trilho cinza */
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cor-borda);       /* Polegar cinza */
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;    /* Escurece quando passa o mouse */
+}
+
+
+/* ================================================================
+   RESPONSIVIDADE — adapta para telas menores
+   @media = regras que só aplicam quando a tela for menor que X pixels
+   ================================================================ */
+@media (max-width: 1024px) {
+    /* Em tablets, empilha mapa e painel verticalmente */
+    .secao-mapa-painel {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .painel-lateral {
+        width: 100%;        /* Painel ocupa toda a largura */
+        height: 300px;
+    }
+
+    #mapa {
+        height: 400px;      /* Altura fixa para o mapa em tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    /* Em celular, reduz espaçamentos */
+    .header {
+        padding: var(--espaco-medio);
+    }
+
+    .secao-cards {
+        padding: var(--espaco-medio);
+        gap: var(--espaco-pequeno);
+    }
+
+    .secao-mapa-painel,
+    .secao-tabela {
+        padding: var(--espaco-pequeno) var(--espaco-medio);
+    }
+
+    /* Cards em grade 2x2 no celular */
+    .card {
+        min-width: calc(50% - 4px);
+    }
+
+    .header-titulo h1 {
+        font-size: 16px;
+    }
+}

@@ -1,5 +1,11 @@
+# === SCRIPTS DE DADOS (ANEEL + APIs) ===
 pandas==3.0.2
 requests==2.33.1
 python-dotenv==1.1.0
 openpyxl==3.1.5
 xlrd==2.0.2
+
+# === BACKEND FLASK ===
+flask==3.1.0
+flask-cors==5.0.0
+mysql-connector-python==9.3.0
